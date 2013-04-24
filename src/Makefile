@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall -DDEBUG -pedantic -std=c99 -N
-LDFLAGS = -levent -levent_pthreads -lao -lspotify -ljansson -lslutils
+LDFLAGS = -levent -levent_pthreads -lao -lspotify -ljansson
 
 all: server
 

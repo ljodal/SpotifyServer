@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "arraylist.h"
 #include "play_queue.h"
 
 struct playqueue

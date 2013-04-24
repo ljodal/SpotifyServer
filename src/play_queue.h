@@ -2,7 +2,6 @@
 #define play_queue_h
 
 #include <libspotify/api.h>
-#include <slutils/arraylist.h>
 
 typedef struct playqueue playqueue_t;
 
