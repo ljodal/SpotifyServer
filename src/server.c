@@ -93,8 +93,6 @@ void init_server(int port) {
         exit(EXIT_FAILURE);
     }
 
-    event_enable_debug_mode();
-
     // Set up the socket
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
