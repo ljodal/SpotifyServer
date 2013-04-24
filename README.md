@@ -39,13 +39,17 @@ Once every second the server will send out status updates containing information
 
 **NOT WORKING UNTILL I MAKE SOME SMALL CHANGES**
 
+### Raspberry Pi
+
 1. Get the debian image
 2. Install required libraries and tools
     1. git: `sudo apt-get install git`
-    2. libao: `sudo apt-get install libao`
-    3. libspotify: Get the latest version [here](http://developer.spotify.com/technologies/libspotify/#download) (eabi-armv6hf architecture, tested with release 12.1.103 beta) and follow the install instructions.
-    4. libevent: Get the latest 2.1 alpha [here](https://github.com/downloads/libevent/libevent/libevent-2.1.2-alpha.tar.gz) and follow the instructions.
-    5. jansson: Get latest version [here](http://www.digip.org/jansson/) (tested with release 2.4) and follow the instructions.
+    2. alsa-utils: `sudo apt-get install alsa-utils`
+        * To make sure that the audio-driver is loaded run `sudo modprobe snd_bcm2835`
+    3. libao: `sudo apt-get install libao`
+    4. libspotify: Get the latest version [here](http://developer.spotify.com/technologies/libspotify/#download) (eabi-armv6hf architecture, tested with release 12.1.103 beta) and follow the install instructions.
+    5. libevent: Get the latest 2.1 alpha [here](https://github.com/downloads/libevent/libevent/libevent-2.1.2-alpha.tar.gz) and follow the instructions.
+    6. jansson: Get latest version [here](http://www.digip.org/jansson/) (tested with release 2.4) and follow the instructions.
 3. Get your API key from spotify [(link)](http://developer.spotify.com/login/)
 4. Go into the src directory and run `make`
 5. You're good to go. Run `./server -u <username> -p <password>` to start the server. Default port is 3579
