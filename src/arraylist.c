@@ -34,7 +34,9 @@ struct arraylist
 
 static int expand_array(arraylist_t *a)
 {
+#ifdef DEBUG
     fprintf(stderr, "Expanding array\n");
+#endif
     void *tmp = realloc(a->array, sizeof(arraylist_e) * a->size * 2);
 
     if (!tmp)
@@ -49,7 +51,9 @@ static int expand_array(arraylist_t *a)
 
 static int contract_array(arraylist_t *a)
 {
+#ifdef DEBUG
     fprintf(stderr, "Contracting array\n");
+#endif
     void *tmp = realloc(a->array, sizeof(arraylist_e) * a->size / 2);
 
     if (!tmp)
@@ -80,8 +84,9 @@ arraylist_t *arraylist_init(unsigned int size)
         return NULL;
 
     memset(a->array, 0, size*sizeof(arraylist_e));
-
+#ifdef DEBUG
     fprintf(stderr, "Size: %d, count: %d\n", a->size, a->count);
+#endif
     return a;
 }
 
@@ -97,7 +102,9 @@ void arraylist_free(arraylist_t *a)
 // Add a new element to the end of the list
 int arraylist_push(arraylist_t *a, void *d, unsigned int l)
 {
+#ifdef DEBUG
     fprintf(stderr, "Adding at %d\n", a->count);
+#endif
     return arraylist_add(a, d, l, a->count);
 }
 
@@ -119,7 +126,9 @@ int arraylist_add(arraylist_t *a, void *d, unsigned int l, unsigned int i)
 
     a->count++;
 
+#ifdef DEBUG
     fprintf(stderr, "Size: %d, count: %d\n", a->size, a->count);
+#endif
 
     return 0;
 }
