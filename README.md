@@ -3,24 +3,23 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 
 ## API
 ### Queue
-* `QUEUE <SPOTIFY URI>` Queue the given URL. The URL must be a valid album or track URI. **_partially implemented_**
-* `QUEUE DELETE <index>` **_not implemented_**
-* `QUEUE GET` **_not implemented_**
+* `queue_uri <spotify uri>` Queue the given URL. The URL must be a valid album or track URI. **_partially implemented_**
+* `queue_delete <index>` **_not implemented_**
+* `queue` **_not implemented_**
 
 ### Playback
-* `NEXT` Play the next song in the queue
-* `PREV` **_not implemented_**
-* `PAUSE` **_not implemented_**
-* `STOP` **_not implemented_**
+* `play_next` Play the next song in the queue
+* `play_prev` **_not implemented_**
+* `play` **_not implemented_**
+* `stop` **_not implemented_**
 
 ### Responses
-**_not implemented_**
-Responses are given as bencoded hashes. The messages will always contain a `type` field. Example response from queueing a song:
+Responses are given as utf-8 encoded json objects, terminated with <LR><LF>. The messages will always contain a `type` field. Example response from queueing a song:
 ```json
 {
-    "type": "queue",
-    "status": "success",
-    "message": "Suicide by Star successfully queued."
+    "type": "queue_uri",
+    "success": true,
+    "message": "Track added to the queue."
 }
 ```
 
