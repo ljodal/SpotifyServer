@@ -16,11 +16,6 @@
 // Threads
 #include <pthread.h>
 
-// Regex
-#include <pcre.h>
-
-#define ALBUM_REGEX "spotify:album:"
-
 #include "server.h"
 
 #include "commands.h"
