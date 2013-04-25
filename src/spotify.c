@@ -337,6 +337,9 @@ static void metadata_updated(sp_session *sp)
 static void search_complete(sp_search *search, void *userdata)
 {
     json_t *json = json_object();
+    json_object_set_new(json, "type", json_string("searchResult"));
+    json_object_set_new(json, "success", json_true());
+
 
     // Go through all albums and add them to the result
     // TODO Error checking
