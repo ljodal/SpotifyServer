@@ -242,6 +242,9 @@ void init_spotify(const char *username, const char *password)
         exit(EXIT_FAILURE);
     }
 
+    // Prefer high bitrate
+    sp_session_preferred_bitrate(sp, SP_BITRATE_320k);
+
     // Initialize current track to NULL
     currenttrack = NULL;
 
