@@ -3,7 +3,7 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 
 ## API
 ### Queue
-* `queue_uri <spotify uri>` Queue the given URL. The URL must be a valid album or track URI. **_partially implemented_**
+* `queue_uri <spotify uri>` Queue the given URI. The URI must be a valid album or track URI.
 * `queue_delete <index>` **_not implemented_**
 * `queue` **_not implemented_**
 
@@ -15,6 +15,8 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 
 ### Metadata
 * `search <query>` Search for the given query. The result is a json object with three arrays; "artists", "albums", and "tracks", each containing up to 100 results.
+* `metadata <spotify uri>` Get metadata for the given URI. **_not implemented_**
+* `image <spotify  uri>` Get a base64 encoded image for the given URI. **_not implemented_**
 
 ### Responses
 Responses are given as utf-8 encoded json objects, terminated with <LR><LF>. The messages will always contain a `type` field. Example response from queueing a song:
