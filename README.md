@@ -15,8 +15,8 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 
 ### Metadata
 * `search <query>` Search for the given query. The result is a json object with three arrays; "artists", "albums", and "tracks", each containing up to 100 results.
-* `metadata <spotify uri>` Get metadata for the given URI.
-* `image <spotify  uri>` Get a base64 encoded image for the given URI.
+* `metadata <spotify uri>` Get metadata for the given URI. **_not implemented_**
+* `image <spotify  uri>` Get a base64 encoded image for the given URI. **_not implemented_**
 
 ### Responses
 Responses are given as utf-8 encoded json objects, terminated with <LR><LF>. The messages will always contain a `type` field. Example response from queueing a song:
