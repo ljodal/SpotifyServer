@@ -13,7 +13,7 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 * `play` **_not implemented_**
 * `stop` **_not implemented_**
 
-## Metadata
+### Metadata
 * `search <query>` Search for the given query. The result is a json object with three arrays; "artists", "albums", and "tracks", each containing up to 100 results.
 
 ### Responses
