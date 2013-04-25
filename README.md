@@ -13,6 +13,9 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 * `play` **_not implemented_**
 * `stop` **_not implemented_**
 
+## Metadata
+* `search <query>` Search for the given query. The result is a json object with three arrays; "artists", "albums", and "tracks", each containing up to 100 results.
+
 ### Responses
 Responses are given as utf-8 encoded json objects, terminated with <LR><LF>. The messages will always contain a `type` field. Example response from queueing a song:
 ```json

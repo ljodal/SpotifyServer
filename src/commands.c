@@ -5,6 +5,8 @@
 
 #include "spotify.h"
 
+// TODO Don't use strtok
+
 char *handle_command(char *command)
 {
     json_t *json = json_object();
@@ -56,6 +58,11 @@ char *handle_command(char *command)
         json_object_set_new(json, "type", json_string("stop"));
         json_object_set_new(json, "success", json_false());
         json_object_set_new(json, "message", json_string("Not implemented"));
+    } else if (!strcmp(cmd, "search")) {
+        search(strtok(NULL, " "), NULL);
+        json_object_set_new(json, "type", json_string("search"));
+        json_object_set_new(json, "success", json_true());
+        json_object_set_new(json, "message", json_string("Searching …"));
     } else {
         // TODO Unknown command, reply
         json_object_set_new(json, "type", json_string(cmd));

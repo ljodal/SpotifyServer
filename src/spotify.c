@@ -333,21 +333,100 @@ static void metadata_updated(sp_session *sp)
 
 static void search_complete(sp_search *search, void *userdata)
 {
+    json_t *json = json_object();
+
+    // Go through all albums and add them to the result
+    // TODO Error checking
+    int album_count = sp_search_num_albums(search);
+    json_t *albums = json_array();
+    for (int i = 0; i < album_count; i++) {
+        sp_album *album = sp_search_album(search, i);
+
+        json_t *album_obj = json_object();
+        json_object_set_new(album_obj, "name", json_string(sp_album_name(album)));
+        json_object_set_new(album_obj, "artist", json_string(sp_artist_name(sp_album_artist(album))));
+
+        // Get the uri of the album
+        sp_link *link = sp_link_create_from_album(album);
+        char buf[256];
+        sp_link_as_string(link, buf, 256);
+        json_object_set_new(album_obj, "uri", json_string(buf));
+        sp_link_release(link);
+
+        json_array_append(albums, album_obj);
+        json_decref(album_obj);
+    }
+
+    json_object_set(json, "albums", albums);
+    json_decref(albums);
+
+    // Go through all the tracks
+    int track_count = sp_search_num_tracks(search);
+    json_t *tracks = json_array();
+    for (int i = 0; i < track_count; i++) {
+        sp_track *track = sp_search_track(search, i);
+        json_t *track_obj = json_object();
+        json_object_set_new(track_obj, "name", json_string(sp_track_name(track)));
+        json_object_set_new(track_obj, "artist", json_string(sp_artist_name(sp_track_artist(track, 0))));
+        json_object_set_new(track_obj, "duration", json_integer(sp_track_duration(track)));
+
+        // Get the uri of the album
+        sp_link *link = sp_link_create_from_track(track, 0);
+        char buf[256];
+        sp_link_as_string(link, buf, 256);
+        json_object_set_new(track_obj, "uri", json_string(buf));
+        sp_link_release(link);
+
+        json_array_append(tracks, track_obj);
+        json_decref(track_obj);
+    }
+
+    json_object_set(json, "tracks", tracks);
+    json_decref(tracks);
+
+    // Go through all the artists
+    int artist_count = sp_search_num_artists(search);
+    json_t *artists = json_array();
+    for (int i = 0; i < artist_count; i++) {
+        sp_artist *artist = sp_search_artist(search, i);
+        json_t *artist_obj = json_object();
+        json_object_set_new(artist_obj, "name", json_string(sp_artist_name(artist)));
+
+        // Get the uri of the album
+        sp_link *link = sp_link_create_from_artist(artist);
+        char buf[256];
+        sp_link_as_string(link, buf, 256);
+        json_object_set_new(artist_obj, "uri", json_string(buf));
+        sp_link_release(link);
+
+        json_array_append(artists, artist_obj);
+        json_decref(artist_obj);
+    }
+
+    json_object_set(json, "artists", artists);
+    json_decref(artists);
+
+    char *data = json_dumps(json, JSON_COMPACT);
+    broadcast(data, strlen(data));
+    free(data);
+    json_decref(json);
+
     // Do something
     sp_search_release(search);
 }
 
 int search(char *query, void *searcher)
 {
+    fprintf(stderr, "Searching for %s\n", query);
     sp_search_create(
             sess,
             query,
             0,
             100,
             0,
+            100,
             0,
-            0,
-            0,
+            100,
             0,
             0,
             SP_SEARCH_STANDARD,
