@@ -7,28 +7,32 @@
 
 // TODO Don't use strtok
 
-char *handle_command(char *command)
+char *handle_command(char *cmd)
 {
     json_t *json = json_object();
 
-    char *cmd = strtok(command, " ");
-    if (!strcmp(cmd, "play")) {
+    if (!strncmp(cmd, "play", 4)) {
         // TODO Not implemented, do nothing
         json_object_set_new(json, "type", json_string("play"));
         json_object_set_new(json, "success", json_false());
         json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strcmp(cmd, "play_next")) {
+    } else if (!strncmp(cmd, "play_next", 9)) {
         play_next();
         json_object_set_new(json, "type", json_string("play_next"));
         json_object_set_new(json, "success", json_true());
         json_object_set_new(json, "message", json_string("Next song will be played."));
-    } else if (!strcmp(cmd, "play_prev")) {
+    } else if (!strncmp(cmd, "play_prev", 9)) {
         // TODO Not implemented, do nothing
         json_object_set_new(json, "type", json_string("play_prev"));
         json_object_set_new(json, "success", json_false());
         json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strcmp(cmd, "queue_uri")) {
-        char *uri = strtok(NULL, " ");
+    } else if (!strncmp(cmd, "queue_uri", 9)) {
+        char *uri = NULL;
+
+        // Find the uri in the string, it's specified
+        if (strlen(cmd) > 10) {
+            uri = strchr(cmd, ' ')+1;
+        }
         if (!uri) {
             json_object_set_new(json, "type", json_string("queue_uri"));
             json_object_set_new(json, "success", json_false());
@@ -53,13 +57,19 @@ char *handle_command(char *command)
                 json_object_set_new(json, "message", json_string("Unknown error occured."));
             }
         }
-    } else if (!strcmp(cmd, "stop")) {
+    } else if (!strncmp(cmd, "stop", 4)) {
         // TODO Not implemented, do nothing
         json_object_set_new(json, "type", json_string("stop"));
         json_object_set_new(json, "success", json_false());
         json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strcmp(cmd, "search")) {
-        search(strtok(NULL, " "), NULL);
+    } else if (!strncmp(cmd, "search", 6)) {
+        char *query = NULL;
+
+        if (strlen(cmd) > 7) {
+            query = strchr(cmd, ' ');
+        }
+
+        search(query, NULL);
         json_object_set_new(json, "type", json_string("search"));
         json_object_set_new(json, "success", json_true());
         json_object_set_new(json, "message", json_string("Searching …"));
