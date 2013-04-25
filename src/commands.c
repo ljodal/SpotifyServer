@@ -11,12 +11,7 @@ char *handle_command(char *cmd)
 {
     json_t *json = json_object();
 
-    if (!strncmp(cmd, "play", 4)) {
-        // TODO Not implemented, do nothing
-        json_object_set_new(json, "type", json_string("play"));
-        json_object_set_new(json, "success", json_false());
-        json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strncmp(cmd, "play_next", 9)) {
+    if (!strncmp(cmd, "play_next", 9)) {
         play_next();
         json_object_set_new(json, "type", json_string("play_next"));
         json_object_set_new(json, "success", json_true());
@@ -24,6 +19,11 @@ char *handle_command(char *cmd)
     } else if (!strncmp(cmd, "play_prev", 9)) {
         // TODO Not implemented, do nothing
         json_object_set_new(json, "type", json_string("play_prev"));
+        json_object_set_new(json, "success", json_false());
+        json_object_set_new(json, "message", json_string("Not implemented"));
+    } else if (!strncmp(cmd, "play", 4)) {
+        // TODO Not implemented, do nothing
+        json_object_set_new(json, "type", json_string("play"));
         json_object_set_new(json, "success", json_false());
         json_object_set_new(json, "message", json_string("Not implemented"));
     } else if (!strncmp(cmd, "queue_uri", 9)) {
