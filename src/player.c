@@ -164,6 +164,9 @@ extern int music_delivery(sp_session *sess, const sp_audioformat *format,
         // Figure out how much data to store
         int size = BUFSIZE < num_frames * frame_size ? BUFSIZE : num_frames * frame_size;
 
+        // Only store hole frames
+        size = size - (size % frame_size);
+
         // Add the new data
         struct buffer *buf = queue_get_free(queue);
         if (buf) {
