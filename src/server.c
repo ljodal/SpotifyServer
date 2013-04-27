@@ -26,8 +26,8 @@ static void accept_connection(struct evconnlistener *listener, evutil_socket_t f
 static void accept_error(struct evconnlistener *listener, void *ctx);
 
 // Events
-static void echo_read(struct bufferevent *bev, void *ctx);
-static void echo_event(struct bufferevent *bev, short events, void *ctx);    
+static void handle_read(struct bufferevent *bev, void *ctx);
+static void handle_event(struct bufferevent *bev, short events, void *ctx);    
 
 struct list
 {
@@ -102,7 +102,7 @@ void init_server(int port) {
     // Create a new listener
     listener = evconnlistener_new_bind(base, accept_connection, NULL,
             LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE, -1,
-            (struct sockaddr *) &sin, sizeof(sin));    
+            (struct sockaddr *) &sin, sizeof(sin));
     if (!listener)
     {
         perror("Unable to create listener");
@@ -126,7 +126,8 @@ void destroy_server() {
     evconnlistener_free(listener);
 }
 
-static void accept_connection(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *address, int socklen, void *ctx)
+static void accept_connection(struct evconnlistener *listener,
+        evutil_socket_t fd, struct sockaddr *address, int socklen, void *ctx)
 {
     /* We got a new connection! Set up a bufferevent for it. */
     struct event_base *base = evconnlistener_get_base(listener);
@@ -134,7 +135,7 @@ static void accept_connection(struct evconnlistener *listener, evutil_socket_t f
     if (!bev)
         fprintf(stderr, "Unable to create bufferevent\n");
 
-    bufferevent_setcb(bev, echo_read, NULL, echo_event, NULL);
+    bufferevent_setcb(bev, handle_read, NULL, handle_event, NULL);
 
     bufferevent_enable(bev, EV_READ | EV_WRITE);
 
@@ -151,7 +152,7 @@ static void accept_error(struct evconnlistener *listener, void *ctx)
     event_base_loopexit(base, NULL);
 }
 
-static void echo_read(struct bufferevent *bev, void *ctx)
+static void handle_read(struct bufferevent *bev, void *ctx)
 {
     /* This callback is invoked when there is data to read on bev. */
     struct evbuffer *buf = bufferevent_get_input(bev);
@@ -170,7 +171,7 @@ static void echo_read(struct bufferevent *bev, void *ctx)
     }
 }
 
-static void echo_event(struct bufferevent *bev, short events, void *ctx)
+static void handle_event(struct bufferevent *bev, short events, void *ctx)
 {
     if (events & BEV_EVENT_ERROR)
         perror("Error from bufferevent");
