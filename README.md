@@ -56,6 +56,10 @@ Once every second the server will send out status updates containing information
 4. Go into the src directory and run `make`
 5. You're good to go. Run `./server -u <username> -p <password>` to start the server. Default port is 3579
 
+__Possible problems:__
+
+If you run into problems with an error message like `error while loading shared libraries: libevent-2.1.so.1: cannot open shared object file: No such file or directory` your library path must be updated. You can do that by adding `/usr/local/lib` to the `/etc/ld.so.conf` file and then run `sudo ldconfig`
+
 ## Notes
 As this is not finished in any way, there's guaranteed to be bugs/crashes/memory leaks and other problems, so be aware of that.
 
