@@ -41,8 +41,6 @@ Once every second the server will send out status updates containing information
 
 ## Install instructions
 
-**NOT WORKING UNTILL I MAKE SOME SMALL CHANGES**
-
 ### Raspberry Pi
 
 1. Get the debian image
@@ -54,7 +52,7 @@ Once every second the server will send out status updates containing information
     4. libspotify: Get the latest version [here](http://developer.spotify.com/technologies/libspotify/#download) (eabi-armv6hf architecture, tested with release 12.1.103 beta) and follow the install instructions.
     5. libevent: Get the latest 2.1 alpha [here](https://github.com/downloads/libevent/libevent/libevent-2.1.2-alpha.tar.gz) and follow the instructions.
     6. jansson: Get latest version [here](http://www.digip.org/jansson/) (tested with release 2.4) and follow the instructions.
-3. Get your API key from spotify [(link)](http://developer.spotify.com/login/)
+3. Get your API key from spotify [(link)](http://developer.spotify.com/login/) and save it in the src directory as key.h
 4. Go into the src directory and run `make`
 5. You're good to go. Run `./server -u <username> -p <password>` to start the server. Default port is 3579
 
