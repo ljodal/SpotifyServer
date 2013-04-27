@@ -50,7 +50,7 @@ Once every second the server will send out status updates containing information
     1. git: `sudo apt-get install git`
     2. alsa-utils: `sudo apt-get install alsa-utils`
         * To make sure that the audio-driver is loaded run `sudo modprobe snd_bcm2835`
-    3. libao: `sudo apt-get install libao`
+    3. libao: `sudo apt-get install libao-dev`
     4. libspotify: Get the latest version [here](http://developer.spotify.com/technologies/libspotify/#download) (eabi-armv6hf architecture, tested with release 12.1.103 beta) and follow the install instructions.
     5. libevent: Get the latest 2.1 alpha [here](https://github.com/downloads/libevent/libevent/libevent-2.1.2-alpha.tar.gz) and follow the instructions.
     6. jansson: Get latest version [here](http://www.digip.org/jansson/) (tested with release 2.4) and follow the instructions.
