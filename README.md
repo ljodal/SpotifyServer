@@ -60,6 +60,8 @@ __Possible problems:__
 
 If you run into problems with an error message like `error while loading shared libraries: libevent-2.1.so.1: cannot open shared object file: No such file or directory` your library path must be updated. You can do that by adding `/usr/local/lib` to the `/etc/ld.so.conf` file and then run `sudo ldconfig`
 
+If you have problems with stuttering playback or other similar audio problems, try installing PulseAudio; `sudo apt-get install libpulse-dev`
+
 ## Notes
 As this is not finished in any way, there's guaranteed to be bugs/crashes/memory leaks and other problems, so be aware of that.
 
