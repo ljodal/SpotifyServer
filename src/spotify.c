@@ -18,6 +18,9 @@
 
 static sp_session *sess;
 
+/*
+ * Session callbacks
+ */
 static void logged_in(sp_session *sp, sp_error error);
 static void notify_main_thread(sp_session *sp);
 static void metadata_updated(sp_session *sp);
@@ -34,16 +37,73 @@ static sp_session_callbacks session_callbacks = {
     .end_of_track = &end_of_track,
 };
 
+/*
+ * Playlist container callbacks
+ */
+
+static void playlist_added(sp_playlistcontainer *pc, sp_playlist *pl,
+                           int position, void *userdata);
+static void playlist_removed(sp_playlistcontainer *pc, sp_playlist *pl,
+                             int position, void *userdata);
+static void container_loaded(sp_playlistcontainer *pc, void *userdata);
+
+static sp_playlistcontainer_callbacks pc_callbacks = {
+    .playlist_added = &playlist_added,
+    .playlist_removed = &playlist_removed,
+    .container_loaded = &container_loaded
+};
+
+/*
+ * Spotify config
+ */
 static sp_session_config spconfig = {
     .api_version = SPOTIFY_API_VERSION,
     .cache_location = "tmp",
     .settings_location = "~/.config",
     .application_key = g_appkey,
-    .application_key_size = sizeof(g_appkey), // Set in main()
+    .application_key_size = sizeof(g_appkey), // Set in key.c
     .user_agent = "network-player-test",
     .callbacks = &session_callbacks,
     NULL,
 };
+
+/*********************************************************
+ *
+ * These functions handles playlist containers.
+ *
+ * *******************************************************/
+
+static void playlist_added(sp_playlistcontainer *pc, sp_playlist *pl,
+                           int position, void *userdata)
+{
+    fprintf(stderr, "%s has %d playlists\n", (char *)userdata,
+    sp_playlistcontainer_num_playlists(pc));
+    /*
+    sp_playlist_add_callbacks(pl, &pl_callbacks, NULL);
+
+    if (!strcasecmp(sp_playlist_name(pl), g_listname)) {
+        g_jukeboxlist = pl;
+        try_jukebox_start();
+    }
+    */
+}
+
+static void playlist_removed(sp_playlistcontainer *pc, sp_playlist *pl,
+                             int position, void *userdata)
+{
+    fprintf(stderr, "%s has %d playlists\n", (char *)userdata,
+    sp_playlistcontainer_num_playlists(pc));
+    /*
+    sp_playlist_remove_callbacks(pl, &pl_callbacks, NULL);
+    */
+}
+
+
+static void container_loaded(sp_playlistcontainer *pc, void *userdata)
+{
+    fprintf(stderr, "%s has %d playlists\n", (char *)userdata,
+    sp_playlistcontainer_num_playlists(pc));
+}
 
 /*********************************************************
  *
@@ -456,4 +516,15 @@ void play_next()
     flush_buffer();
 
     notify_main_thread(sess);
+}
+
+/*
+ * Get a list of playlists for a user
+ */
+void get_user(const char *username)
+{
+    sp_playlistcontainer *playlists =
+        sp_session_publishedcontainer_for_user_create (sess, username);
+
+    sp_playlistcontainer_add_callbacks(playlists, &pc_callbacks, username);
 }
