@@ -1,13 +1,29 @@
 CC = gcc
-CFLAGS = -g -Wall -DDEBUG -pedantic -std=c99 -N
-LDFLAGS = -levent -levent_pthreads -lao -lspotify
+CFLAGS = -g -Wall -DDEBUG -pedantic -std=c99
+LDFLAGS = -levent -levent_pthreads -lao -lspotify -ljansson
 
-all: server
+TARGET   = server
+SRCDIR   = src
+OBJDIR   = obj
+BINDIR   = bin
 
-server: src/main.o src/server.o src/spotify.o src/player.o src/queue.o src/play_queue.o src/commands.o
+OBJECTS := main.o commands.o play_queue.o player.o queue.o server.o spotify.o arraylist.o
+OBJECTS := $(addprefix $(OBJDIR)/,$(OBJECTS))
+
+.PHONY: all
+all: bin/server
+
+$(BINDIR)/$(TARGET): $(OBJECTS)
+	@$(CC) -o $@ $(LDFLAGS) $(OBJECTS)
+	@echo "Linking complete!"
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiled "$<" successfully!"
 
 .PHONY: clean
 clean:
-	rm -f server src/*.o
+	rm obj/*.o
+	rm -f bin/server
 	rm -rf tmp
 	rm -rf *.dSYM
