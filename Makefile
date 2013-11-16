@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall -DDEBUG -pedantic -std=c99
-LDFLAGS = -levent -levent_pthreads -lao -lspotify -ljansson
+LDFLAGS = -lpthread -levent -levent_pthreads -lao -lspotify -ljansson
 
 TARGET   = server
 SRCDIR   = src
@@ -14,7 +14,7 @@ OBJECTS := $(addprefix $(OBJDIR)/,$(OBJECTS))
 all: bin/server
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(CC) -o $@ $(LDFLAGS) $(OBJECTS)
+	@$(CC) -o $@ $(OBJECTS) $(LDFLAGS)
 	@echo "Linking complete!"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
