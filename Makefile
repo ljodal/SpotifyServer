@@ -23,7 +23,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 
 .PHONY: clean
 clean:
-	rm obj/*.o
+	rm -f obj/*.o
 	rm -f bin/server
 	rm -rf tmp
 	rm -rf *.dSYM
