@@ -5,7 +5,7 @@ This is a simple spotify player, controlled via a TCP connection. It was created
 ### Queue
 * `queue_uri <spotify uri>` Queue the given URI. The URI must be a valid album or track URI.
 * `queue_delete <index>` **_not implemented_**
-* `queue` **_not implemented_**
+* `queue` Broadcasts the queue list.
 
 ### Playback
 * `play_next` Play the next song in the queue

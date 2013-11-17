@@ -57,6 +57,11 @@ char *handle_command(char *cmd)
                 json_object_set_new(json, "message", json_string("Unknown error occured."));
             }
         }
+    } else if (!strncmp(cmd, "queue", 5)) {
+        queue_broadcast();
+        json_object_set_new(json, "type", json_string("queue"));
+        json_object_set_new(json, "success", json_true());
+        json_object_set_new(json, "message", json_string("Queue broadcasted"));
     } else if (!strncmp(cmd, "stop", 4)) {
         // TODO Not implemented, do nothing
         json_object_set_new(json, "type", json_string("stop"));

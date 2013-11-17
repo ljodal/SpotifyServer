@@ -19,5 +19,6 @@ int queue_link(char *);
 void play_next();
 int search(char *query, void *searcher);
 void get_user(const char *username);
+void queue_broadcast();
 
 #endif

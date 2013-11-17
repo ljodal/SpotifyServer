@@ -62,7 +62,8 @@ int main(int argc, char *argv[])
     if (port == 0)
         port = 3579;
 
-    int err = 0;/// = pthread_create(&server_thread, NULL, run_server, &port);
+    int err = 0;
+    //err = pthread_create(&server_thread, NULL, run_server, &port);
     //if (err != 0) {
     //    fprintf(stderr, "Error creating network thread.\n");
     //    return EXIT_FAILURE;

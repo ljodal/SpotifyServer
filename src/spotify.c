@@ -218,6 +218,17 @@ int queue_link(char *link)
     return retval;
 }
 
+void queue_broadcast() {
+    json_t *json = json_array();
+
+    playqueue_to_json(pq, json);
+
+    char *data = json_dumps(json, JSON_COMPACT);
+    broadcast(data, strlen(data));
+    json_decref(json);
+    free(data);
+}
+
 /*********************************************************
  *
  * Handles the playback
@@ -526,5 +537,5 @@ void get_user(const char *username)
     sp_playlistcontainer *playlists =
         sp_session_publishedcontainer_for_user_create (sess, username);
 
-    sp_playlistcontainer_add_callbacks(playlists, &pc_callbacks, username);
+    sp_playlistcontainer_add_callbacks(playlists, &pc_callbacks, (void *)username);
 }
