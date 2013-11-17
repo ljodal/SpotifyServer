@@ -1,6 +1,8 @@
 #ifndef sl_arraylist_h
 #define sl_arraylist_h
 
+#include <stdint.h>
+
 typedef struct arraylist arraylist_t;
 
 arraylist_t *arraylist_init(unsigned int size);
