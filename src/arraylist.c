@@ -153,3 +153,13 @@ void *arraylist_remove(arraylist_t *a, unsigned int *l, unsigned int i)
     return d;
 }
 
+// Return the number of elements in the array list
+uint32_t arraylist_size(arraylist_t *a) {
+    return a->count;
+}
+
+// Look at an element without deleting it
+void *arraylist_peek(arraylist_t *a, uint32_t *l, uint32_t i) {
+    *l = a->array[i].len;
+    return a->array[i].data;
+}

@@ -12,4 +12,6 @@ int arraylist_add(arraylist_t *a, void *d, unsigned int l, unsigned int i);
 void *arraylist_pop(arraylist_t *a, unsigned int *l);
 void *arraylist_remove(arraylist_t *a, unsigned int *l, unsigned int i);
 
+uint32_t arraylist_size(arraylist_t *a);
+void *arraylist_peek(arraylist_t *a, uint32_t *l, uint32_t i);
 #endif
