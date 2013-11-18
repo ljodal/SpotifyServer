@@ -67,6 +67,11 @@ static sp_session_config spconfig = {
     NULL,
 };
 
+/*
+ * Broadcast status
+ */
+static void status_update(evutil_socket_t fd, short events, void *arg);
+
 /*********************************************************
  *
  * These functions handles playlist containers.
@@ -254,6 +259,7 @@ void queue_delete(uint32_t i) {
 
 static sp_track *currenttrack;
 bool _playing;
+struct event *status_event;
 
 /*
  * This function tries to start playback
@@ -338,6 +344,13 @@ void init_spotify(const char *username, const char *password)
 
     // Set the global session pointer
     sess = sp;
+
+    // Try to create the update event
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    status_event = event_new(base, -1, EV_PERSIST, status_update, NULL);
+    event_add(status_event, &tv);
 
     // Log in
     sp_session_login(sp, username, password, 0, NULL);
@@ -555,4 +568,23 @@ void get_user(const char *username)
         sp_session_publishedcontainer_for_user_create (sess, username);
 
     sp_playlistcontainer_add_callbacks(playlists, &pc_callbacks, (void *)username);
+}
+
+/*********************************************************
+ *
+ * Send out status updates
+ *
+ * *******************************************************/
+static void status_update(evutil_socket_t fd, short events, void *arg)
+{
+    json_t *json = json_object();
+
+    if (currenttrack != NULL) {
+        json_object_set_new(json, "playing", json_true());
+    } else {
+        json_object_set_new(json, "playing", json_false());
+    }
+
+    fprintf(stderr, "%s\n", json_dumps(json, JSON_COMPACT));
+    json_decref(json);
 }
