@@ -47,3 +47,30 @@ void playqueue_to_json(playqueue_t *q, json_t *array) {
         json_array_append_new(array, object);
     }
 }
+
+void playqueue_delete(playqueue_t *q, uint32_t i) {
+
+    // Remove the element from the list
+    uint32_t l;
+    sp_track *track = (sp_track *)arraylist_remove(q->al, &l, i);
+
+    // Release the track
+    sp_track_release(track);
+}
+
+void playqueue_move(playqueue_t *q, uint32_t from, uint32_t to) {
+    uint32_t queue_size = arraylist_size(q->al);
+
+    // Indexes must be less than the queue_size
+    if (from >= queue_size || to >= queue_size) return;
+
+    // Indexes can't be the same
+    if (from == to) return;
+
+    // Remove the element from the list
+    uint32_t l;
+    sp_track *track = (sp_track *)arraylist_remove(q->al, &l, from);
+
+    // Insert the track at the new location
+    arraylist_add(q->al, (void *)track, l, to);
+}

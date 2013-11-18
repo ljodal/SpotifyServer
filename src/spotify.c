@@ -218,6 +218,11 @@ int queue_link(char *link)
     return retval;
 }
 
+/**
+ * Manipulate the queue
+ */
+
+// Broadcast all elements in the queue
 void queue_broadcast() {
     json_t *json = json_array();
 
@@ -227,6 +232,18 @@ void queue_broadcast() {
     broadcast(data, strlen(data));
     json_decref(json);
     free(data);
+}
+
+// Move the queue element 'from' to 'to'
+void queue_move(uint32_t from, uint32_t to) {
+    playqueue_move(pq, from, to);
+    queue_broadcast();
+}
+
+// Delete the element at index 'i' in the queue.
+void queue_delete(uint32_t i) {
+    playqueue_delete(pq, i);
+    queue_broadcast();
 }
 
 /*********************************************************

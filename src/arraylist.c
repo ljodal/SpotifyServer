@@ -115,11 +115,18 @@ void *arraylist_pop(arraylist_t *a, unsigned int *l)
 
 int arraylist_add(arraylist_t *a, void *d, unsigned int l, unsigned int i)
 {
+    // Ignore empty elements
     if (!a)
         return -1;
 
+    // Make sure we have capacity
     if (a->size == a->count && expand_array(a) != 0)
         return -1;
+
+    // Move other elements
+    if (i < a->count) {
+        memmove(&a->array[i+1], &a->array[i], sizeof(arraylist_e) * (a->count - i - 1));
+    }
 
     a->array[i].data = d;
     a->array[i].len = l;

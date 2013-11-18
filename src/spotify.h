@@ -19,6 +19,10 @@ int queue_link(char *);
 void play_next();
 int search(char *query, void *searcher);
 void get_user(const char *username);
+
+// Manipulate the queue
 void queue_broadcast();
+void queue_move(uint32_t from, uint32_t to);
+void queue_delete(uint32_t i);
 
 #endif

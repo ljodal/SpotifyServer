@@ -57,6 +57,29 @@ char *handle_command(char *cmd)
                 json_object_set_new(json, "message", json_string("Unknown error occured."));
             }
         }
+    } else if (!strncmp(cmd, "queue_delete", 12)) {
+        uint32_t from = 0;
+
+        // Find the uri in the string, it's specified
+        if (strlen(cmd) > 13) {
+            // TODO Don't use atoi
+            from = atoi(strchr(cmd, ' ')+1);
+
+            queue_delete(from);
+        }
+    } else if (!strncmp(cmd, "queue_move", 10)) {
+        char *from = NULL, *to = NULL;
+
+        // Find the uri in the string, it's specified
+        if (strlen(cmd) > 11) {
+            // TODO Don't use atoi
+            from = strchr(cmd, ' ')+1;
+            to = strchr(from, ' ')+1;
+
+            fprintf(stderr, "Move from %d to %d\n", atoi(from), atoi(to));
+
+            queue_move(atoi(from), atoi(to));
+        }
     } else if (!strncmp(cmd, "queue", 5)) {
         queue_broadcast();
         json_object_set_new(json, "type", json_string("queue"));
