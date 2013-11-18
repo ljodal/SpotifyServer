@@ -275,10 +275,10 @@ int try_playback(sp_session *sp)
     }
 
     json_t *json = json_object();
-    json_object_set_new(json, "type", json_string("new track"));
+    json_object_set_new(json, "type", json_string("now_playing"));
     json_object_set_new(json, "success", json_true());
     json_object_set_new(json, "message", json_string("Track changed."));
-    json_object_set_new(json, "trackName", json_string(sp_track_name(currenttrack)));
+    json_object_set_new(json, "track_name", json_string(sp_track_name(currenttrack)));
     char *data = json_dumps(json, JSON_COMPACT);
     json_decref(json);
     broadcast(data, strlen(data));

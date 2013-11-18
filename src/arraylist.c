@@ -142,7 +142,7 @@ int arraylist_add(arraylist_t *a, void *d, unsigned int l, unsigned int i)
 
 void *arraylist_remove(arraylist_t *a, unsigned int *l, unsigned int i)
 {
-    if (a->count == 0) {
+    if (a->count == 0|| a->count <= i) {
         *l = 0;
         return NULL;
     }
