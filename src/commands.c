@@ -76,8 +76,6 @@ char *handle_command(char *cmd)
             from = strchr(cmd, ' ')+1;
             to = strchr(from, ' ')+1;
 
-            fprintf(stderr, "Move from %d to %d\n", atoi(from), atoi(to));
-
             queue_move(atoi(from), atoi(to));
         }
     } else if (!strncmp(cmd, "queue", 5)) {
