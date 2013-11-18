@@ -1,6 +1,8 @@
 #ifndef spotify_h
 #define spotify_h
 
+#include <stdint.h>
+
 typedef enum
 {
     SPOTIFY_TRACK_QUEUED,
