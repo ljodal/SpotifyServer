@@ -15,17 +15,24 @@ pthread_mutex_t buffer_lock;
 pthread_cond_t play_wait;
 struct queue *queue;
 
-static ao_device* ao_dev = NULL;
-int ao_d;
-int frame_size;
-ao_sample_format ao_format;
-
-
 struct buffer
 {
     void *data;
     int size;
 };
+
+#ifndef pi
+static ao_device* ao_dev = NULL;
+int ao_d;
+int frame_size;
+ao_sample_format ao_format;
+#else
+int samplerate = 0;
+int bitdepth = 0;
+int channels = 0;
+char *output = "hdmi"; // Change to "local" if you want analog output
+AUDIOPLAY_STATE_T *st = NULL;
+#endif
 
 void init_player()
 {
@@ -55,6 +62,7 @@ void init_player()
         queue_add_free(queue, buf);
     }
 
+#ifndef pi
     // Initialize libao
     ao_initialize();
 
@@ -64,6 +72,7 @@ void init_player()
         fprintf(stderr, "Unable to initialize audio output dirver.\n");
         exit(EXIT_FAILURE);
     }
+#endif
 
 #ifdef DEBUG
     fprintf(stderr, "Player initialized.\n");
@@ -80,6 +89,7 @@ void *play_loop()
 
         if (!buf || buf->size <= 0)
         {
+            // Wait for new buffers to become available
             pthread_cond_wait(&play_wait, &buffer_lock);
         } else {
             pthread_mutex_unlock(&buffer_lock);
@@ -96,19 +106,31 @@ void *play_loop()
 
 void format_change(const sp_audioformat* format)
 {
+#ifndef pi
     if (ao_dev)
         ao_close(ao_dev);
+#else
+    if (st)
+        audioplay_delete(st);
+#endif
 
+#ifndef pi
     // Set all parameters of the format struct
     ao_format.bits = 16;
     ao_format.rate = format->sample_rate;
     ao_format.channels = format->channels;
     ao_format.byte_format = AO_FMT_NATIVE;
     ao_format.matrix = NULL;
+#else
+    bitdepth = 16;
+    samplerate = format->sample_rate;
+    channels = format->channels;
+#endif
 
     // Update the frame size variable
     frame_size = sizeof(int16_t) * format->channels;
 
+#ifndef pi
     // Open an AO device
     ao_dev = ao_open_live(ao_d, &ao_format, NULL);
     if (!ao_dev)
@@ -116,6 +138,21 @@ void format_change(const sp_audioformat* format)
         fprintf(stderr, "Unable to open AO device.\n");
         exit(EXIT_FAILURE);
     }
+#else
+    // Last to parameters are number of buffers and the size of the buffers
+    int err = audioplay_create(&st, samplerate, channels, bitdepth, BUFNUM, (BUFSIZE * frame_size) >> 3);
+    if (err != 0) {
+        fprintf(stderr, "Unable to create audioplay\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Set the output device
+    err = audioplay_set_dest(st, output);
+    if (err != 0) {
+        fprintf(stderr, "Unable to create audioplay\n");
+        exit(EXIT_FAILURE);
+    }
+#endif
 
 #ifdef DEBUG
     fprintf(stderr, "Player changed format.\n");
@@ -185,4 +222,3 @@ extern int music_delivery(sp_session *sess, const sp_audioformat *format,
         return size / frame_size;
     }
 }
-

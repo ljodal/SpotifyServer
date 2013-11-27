@@ -7,107 +7,66 @@
 
 // TODO Don't use strtok
 
-char *handle_command(char *cmd)
+char *handle_command(char *json, struct bufferevent *bev)
 {
-    json_t *json = json_object();
+    json_error_t error;
 
-    if (!strncmp(cmd, "play_next", 9)) {
-        play_next();
-        json_object_set_new(json, "type", json_string("play_next"));
-        json_object_set_new(json, "success", json_true());
-        json_object_set_new(json, "message", json_string("Next song will be played."));
-    } else if (!strncmp(cmd, "play_prev", 9)) {
-        // TODO Not implemented, do nothing
-        json_object_set_new(json, "type", json_string("play_prev"));
-        json_object_set_new(json, "success", json_false());
-        json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strncmp(cmd, "play", 4)) {
-        // TODO Not implemented, do nothing
-        json_object_set_new(json, "type", json_string("play"));
-        json_object_set_new(json, "success", json_false());
-        json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strncmp(cmd, "queue_uri", 9)) {
-        char *uri = NULL;
+    // Reponse object
+    json_t *response = NULL;
 
-        // Find the uri in the string, it's specified
-        if (strlen(cmd) > 10) {
-            uri = strchr(cmd, ' ')+1;
-        }
-        if (!uri) {
-            json_object_set_new(json, "type", json_string("queue_uri"));
-            json_object_set_new(json, "success", json_false());
-            json_object_set_new(json, "message", json_string("No URI given."));
-        } else {
-            spotify_status_t ret = queue_link(uri);
-            if (ret == SPOTIFY_TRACK_QUEUED) {
-                json_object_set_new(json, "type", json_string("queue_uri"));
-                json_object_set_new(json, "success", json_true());
-                json_object_set_new(json, "message", json_string("Track added to the queue."));
-            } else if (ret == SPOTIFY_ALBUM_QUEUED) {
-                json_object_set_new(json, "type", json_string("queue_uri"));
-                json_object_set_new(json, "success", json_true());
-                json_object_set_new(json, "message", json_string("Album added to the queue."));
-            } else if (ret == SPOTIFY_INVALID_URI) {
-                json_object_set_new(json, "type", json_string("queue_uri"));
-                json_object_set_new(json, "success", json_false());
-                json_object_set_new(json, "message", json_string("Invalid URI."));
-            } else {
-                json_object_set_new(json, "type", json_string("queue_uri"));
-                json_object_set_new(json, "success", json_false());
-                json_object_set_new(json, "message", json_string("Unknown error occured."));
+    // Parse the JSON command
+    json_t *command = json_loads(json, 0, &error);
+
+    if (command) {
+        json_t *c = json_object_get(command, "command");
+        if (!c) return NULL;
+
+        const char *cmd = json_string_value(c);
+
+        if (!cmd) {
+            return NULL;
+        } else if (strcmp(cmd, "queue_add") == 0) {
+            json_t *t = json_object_get(command, "type");
+
+            if (json_typeof(t) != JSON_STRING) {
+                return NULL;
+            } else if (strcmp(json_string_value(t), "uri") == 0) {
+
+                json_t *uri = json_object_get(command,"uri");
+
+                // Queue the uri
+                queue_link((char *)json_string_value(uri));
             }
-        }
-    } else if (!strncmp(cmd, "queue_delete", 12)) {
-        uint32_t from = 0;
+        } else if (strcmp(cmd, "queue") == 0) {
+            queue_broadcast();
+            fprintf(stderr, "Queue\n");
+        } else if (strcmp(cmd, "queue_delete") == 0) {
+            fprintf(stderr, "Queue delete\n");
+        } else if (strcmp(cmd, "queue_move") == 0) {
+            fprintf(stderr, "Queue move\n");
+        } else if (strcmp(cmd, "search") == 0) {
+            json_t *query = json_object_get(command, "query");
 
-        // Get the index
-        if (sscanf(cmd, "queue_delete %u", &from) == 1) {
-            queue_delete(from);
+            if (query && json_typeof(query) == JSON_STRING) {
+                search(json_string_value(query), bev);
+                fprintf(stderr, "Search\n");
+            }
         } else {
-            json_object_set_new(json, "type", json_string("queue_delete"));
-            json_object_set_new(json, "success", json_false());
-            json_object_set_new(json, "message", json_string("Invalid arguments"));
+            fprintf(stderr, "Unknown\n");
         }
-    } else if (!strncmp(cmd, "queue_move", 10)) {
-        uint32_t from = 0, to = 0;
-
-        // Get the indexes
-        if (sscanf(cmd, "queue_move %u %u", &from, &to) == 2) {
-            queue_move(from, to);
-        } else {
-            json_object_set_new(json, "type", json_string("queue_move"));
-            json_object_set_new(json, "success", json_false());
-            json_object_set_new(json, "message", json_string("Invalid arguments"));
-        }
-    } else if (!strncmp(cmd, "queue", 5)) {
-        queue_broadcast();
-        json_object_set_new(json, "type", json_string("queue"));
-        json_object_set_new(json, "success", json_true());
-        json_object_set_new(json, "message", json_string("Queue broadcasted"));
-    } else if (!strncmp(cmd, "stop", 4)) {
-        // TODO Not implemented, do nothing
-        json_object_set_new(json, "type", json_string("stop"));
-        json_object_set_new(json, "success", json_false());
-        json_object_set_new(json, "message", json_string("Not implemented"));
-    } else if (!strncmp(cmd, "search", 6)) {
-        char *query = NULL;
-
-        if (strlen(cmd) > 7) {
-            query = strchr(cmd, ' ');
-        }
-
-        search(query, NULL);
-        json_object_set_new(json, "type", json_string("search"));
-        json_object_set_new(json, "success", json_true());
-        json_object_set_new(json, "message", json_string("Searching …"));
     } else {
-        // TODO Unknown command, reply
-        json_object_set_new(json, "type", json_string(cmd));
-        json_object_set_new(json, "success", json_false());
-        json_object_set_new(json, "message", json_string("Unknown command."));
+        response = json_object();
+
+        json_object_set_new(response, "success", json_false());
+        json_object_set_new(response, "type", json_string("invalid_json"));
+        json_object_set_new(response, "message", json_string("Invalid JSON command"));
     }
 
-    char *retval = json_dumps(json, JSON_COMPACT);
-    json_decref(json);
-    return retval;
+    if (response) {
+        char *retval = json_dumps(response, JSON_COMPACT);
+        json_decref(response);
+        return retval;
+    } else {
+        return NULL;
+    }
 }

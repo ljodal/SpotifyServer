@@ -346,11 +346,13 @@ void init_spotify(const char *username, const char *password)
     sess = sp;
 
     // Try to create the update event
+    /*
     struct timeval tv;
     tv.tv_sec = 1;
     tv.tv_usec = 0;
     status_event = event_new(base, -1, EV_PERSIST, status_update, NULL);
     event_add(status_event, &tv);
+    */
 
     // Log in
     sp_session_login(sp, username, password, 0, NULL);
@@ -514,7 +516,12 @@ static void search_complete(sp_search *search, void *userdata)
     json_decref(artists);
 
     char *data = json_dumps(json, JSON_COMPACT);
-    broadcast(data, strlen(data));
+
+    if (userdata != NULL) {
+        send_msg((uint8_t *)data, strlen(data), (struct bufferevent *)userdata);
+    } else {
+        broadcast(data, strlen(data));
+    }
     free(data);
     json_decref(json);
 
@@ -522,7 +529,7 @@ static void search_complete(sp_search *search, void *userdata)
     sp_search_release(search);
 }
 
-int search(char *query, void *searcher)
+int search(const char *query, void *searcher)
 {
     fprintf(stderr, "Searching for %s\n", query);
     sp_search_create(

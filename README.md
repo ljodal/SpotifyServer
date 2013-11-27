@@ -1,21 +1,56 @@
 # SpotifyServer
-This is a simple spotify player, controlled via a TCP connection. It was created because I wanted to use my raspberry pi as a remote spotify player.
+This is a simple Spotify player. It is controlled with JSON commands via a TCP socket.
 
 ## API
 ### Queue
-* `queue_uri <spotify uri>` Queue the given URI. The URI must be a valid album or track URI.
-* `queue_delete <index>` Delete the item at index `<index>` from the queue
-* `queue_move <from> <to>` Move the element at index `<from>` to index `<to>`
-* `queue` Broadcasts the queue list.
+#### Add an uri to the queue
+```json
+{
+    "command": "queue_add",
+    "type": "uri",
+    "uri": "<spotify uri>"
+}
+```
+#### Delete the track at index `index` from the queue
+**_not implemented_**
+```json
+{
+    "command": "queue_delete",
+    "index": 0
+}
+```
+#### Move a track in the queue from index `from` to index `to`
+**_not implemented_**
+```json
+{
+    "command": "queue_move",
+    "from": 0,
+    "to": 1
+}
+```
+#### Get the current queue
+**_not implemented_**
+```json
+{
+    "command": "queue"
+}
+```
 
 ### Playback
-* `play_next` Play the next song in the queue
+* `play_next` **_not implemented_**
 * `play_prev` **_not implemented_**
 * `play` **_not implemented_**
 * `stop` **_not implemented_**
 
 ### Metadata
-* `search <query>` Search for the given query. The result is a json object with three arrays; "artists", "albums", and "tracks", each containing up to 100 results.
+#### Search for `query`
+```json
+{
+    "command": "search",
+    "type": "<all|artist|album|track>",
+    "query": "<query>"
+}
+```
 * `metadata <spotify uri>` Get metadata for the given URI. **_not implemented_**
 * `image <spotify  uri>` Get a base64 encoded image for the given URI. **_not implemented_**
 

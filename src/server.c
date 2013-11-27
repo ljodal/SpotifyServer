@@ -162,12 +162,14 @@ static void handle_read(struct bufferevent *bev, void *ctx)
 
     request_line = evbuffer_readln(buf, &len, EVBUFFER_EOL_CRLF_STRICT);
     if (request_line) {
-        char *response = handle_command(request_line);
+        char *response = handle_command(request_line, bev);
         free(request_line);
-        struct evbuffer *output = bufferevent_get_output(bev);
-        evbuffer_add(output, response, strlen(response));
-        evbuffer_add(output, "\r\n", 2);
-        free(response);
+        if (response) {
+            struct evbuffer *output = bufferevent_get_output(bev);
+            evbuffer_add(output, response, strlen(response));
+            evbuffer_add(output, "\r\n", 2);
+            free(response);
+        }
     }
 }
 
@@ -198,5 +200,7 @@ void broadcast(char *data, size_t len) {
 
 void send_msg(uint8_t *data, size_t len, struct bufferevent *bev)
 {
-    return;
+    fprintf(stderr, "Send data\n");
+    bufferevent_write(bev, data, len);
+    bufferevent_write(bev, (uint8_t *)"\r\n", 2);
 }

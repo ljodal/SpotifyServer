@@ -19,7 +19,7 @@ void init_spotify(const char *username, const char *password);
 void spotify_loop();
 int queue_link(char *);
 void play_next();
-int search(char *query, void *searcher);
+int search(const char *query, void *searcher);
 void get_user(const char *username);
 
 // Manipulate the queue
