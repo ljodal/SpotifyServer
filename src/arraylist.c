@@ -125,7 +125,7 @@ int arraylist_add(arraylist_t *a, void *d, unsigned int l, unsigned int i)
 
     // Move other elements
     if (i < a->count) {
-        memmove(&a->array[i+1], &a->array[i], sizeof(arraylist_e) * (a->count - i - 1));
+        memmove(&a->array[i+1], &a->array[i], sizeof(arraylist_e) * (a->count - i));
     }
 
     a->array[i].data = d;
@@ -142,7 +142,7 @@ int arraylist_add(arraylist_t *a, void *d, unsigned int l, unsigned int i)
 
 void *arraylist_remove(arraylist_t *a, unsigned int *l, unsigned int i)
 {
-    if (a->count == 0|| a->count <= i) {
+    if (a->count == 0 || a->count <= i) {
         *l = 0;
         return NULL;
     }
