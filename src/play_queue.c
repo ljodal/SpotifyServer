@@ -43,6 +43,15 @@ void playqueue_to_json(playqueue_t *q, json_t *array) {
             json_object_set_new(object, "loaded", json_false());
         }
         json_object_set_new(object, "name", json_string(sp_track_name(track)));
+        json_object_set_new(object, "artist", json_string(sp_artist_name(sp_track_artist(track, 0))));
+        json_object_set_new(object, "album", json_string(sp_album_name(sp_track_album(track))));
+        json_object_set_new(object, "duration", json_integer(sp_track_duration(track)));
+
+        sp_link *link = sp_link_create_from_track(track, 0);
+        char buf[256];
+        sp_link_as_string(link, buf, 256);
+        json_object_set_new(object, "uri", json_string(buf));
+        sp_link_release(link);
 
         json_array_append_new(array, object);
     }

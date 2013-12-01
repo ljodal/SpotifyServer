@@ -129,6 +129,7 @@ static int queue_track(sp_link *link)
         return SPOTIFY_TRACK_NOT_QUEUED;
 
     if(playqueue_add(pq, track) == 0) {
+        queue_broadcast();
         return SPOTIFY_TRACK_QUEUED;
     }
 
@@ -142,12 +143,12 @@ static void queue_album_callback(sp_albumbrowse *browse, void *userdata)
 {
     json_t *json = json_object();
     json_object_set_new(json, "type", json_string("queue_album"));
-    
+
     if (sp_albumbrowse_error(browse) != SP_ERROR_OK) {
         json_object_set_new(json, "success", json_false());
         json_object_set_new(json, "message", json_string("Unable to add album to queue."));
         char *data = json_dumps(json, JSON_COMPACT);
-        broadcast(data, strlen(data));
+        //broadcast(data, strlen(data));
         json_decref(json);
         free(data);
         return;
@@ -162,9 +163,11 @@ static void queue_album_callback(sp_albumbrowse *browse, void *userdata)
     json_object_set_new(json, "success", json_true());
     json_object_set_new(json, "message", json_string("Album added to queue."));
     char *data = json_dumps(json, JSON_COMPACT);
-    broadcast(data, strlen(data));
+    //broadcast(data, strlen(data));
     json_decref(json);
     free(data);
+
+    queue_broadcast();
 }
 
 static int queue_album(sp_link *link)
@@ -229,9 +232,13 @@ int queue_link(char *link)
 
 // Broadcast all elements in the queue
 void queue_broadcast() {
-    json_t *json = json_array();
+    json_t *json = json_object();
 
-    playqueue_to_json(pq, json);
+    json_t *tracks = json_array();
+    playqueue_to_json(pq, tracks);
+
+    json_object_set_new(json, "type", json_string("queue"));
+    json_object_set_new(json, "tracks", tracks);
 
     char *data = json_dumps(json, JSON_COMPACT);
     broadcast(data, strlen(data));
@@ -279,6 +286,8 @@ int try_playback(sp_session *sp)
     if (sp_track_error(currenttrack) != SP_ERROR_OK) {
         return -3;
     }
+
+    queue_broadcast();
 
     json_t *json = json_object();
     json_object_set_new(json, "type", json_string("now_playing"));

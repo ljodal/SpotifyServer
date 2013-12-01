@@ -39,17 +39,18 @@ char *handle_command(char *json, struct bufferevent *bev)
             }
         } else if (strcmp(cmd, "queue") == 0) {
             queue_broadcast();
-            fprintf(stderr, "Queue\n");
         } else if (strcmp(cmd, "queue_delete") == 0) {
-            fprintf(stderr, "Queue delete\n");
+            uint32_t index = json_integer_value(json_object_get(command, "index"));
+            queue_delete(index);
         } else if (strcmp(cmd, "queue_move") == 0) {
-            fprintf(stderr, "Queue move\n");
+            uint32_t from = json_integer_value(json_object_get(command, "from"));
+            uint32_t to = json_integer_value(json_object_get(command, "to"));
+            queue_move(from, to);
         } else if (strcmp(cmd, "search") == 0) {
             json_t *query = json_object_get(command, "query");
 
             if (query && json_typeof(query) == JSON_STRING) {
                 search(json_string_value(query), bev);
-                fprintf(stderr, "Search\n");
             }
         } else {
             fprintf(stderr, "Unknown\n");
