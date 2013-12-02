@@ -7,7 +7,7 @@ SRCDIR   = src
 OBJDIR   = obj
 BINDIR   = bin
 
-OBJECTS := main.o commands.o play_queue.o player.o queue.o server.o spotify.o arraylist.o
+OBJECTS := main.o commands.o play_queue.o player.o queue.o server.o spotify.o arraylist.o playlist.o
 OBJECTS := $(addprefix $(OBJDIR)/,$(OBJECTS))
 
 .PHONY: all

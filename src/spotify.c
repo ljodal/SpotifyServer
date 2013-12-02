@@ -14,10 +14,12 @@
 #include "server.h"
 #include "commands.h"
 #include "key.h"
+#include "playlist.h"
 
 #define QUEUE_SIZE 2
 
 static sp_session *sess;
+static playlist_t *pl;
 
 /*
  * Session callbacks
@@ -39,22 +41,6 @@ static sp_session_callbacks session_callbacks = {
 };
 
 /*
- * Playlist container callbacks
- */
-
-static void playlist_added(sp_playlistcontainer *pc, sp_playlist *pl,
-                           int position, void *userdata);
-static void playlist_removed(sp_playlistcontainer *pc, sp_playlist *pl,
-                             int position, void *userdata);
-static void container_loaded(sp_playlistcontainer *pc, void *userdata);
-
-static sp_playlistcontainer_callbacks pc_callbacks = {
-    .playlist_added = &playlist_added,
-    .playlist_removed = &playlist_removed,
-    .container_loaded = &container_loaded
-};
-
-/*
  * Spotify config
  */
 static sp_session_config spconfig = {
@@ -72,44 +58,6 @@ static sp_session_config spconfig = {
  * Broadcast status
  */
 static void status_update(evutil_socket_t fd, short events, void *arg);
-
-/*********************************************************
- *
- * These functions handles playlist containers.
- *
- * *******************************************************/
-
-static void playlist_added(sp_playlistcontainer *pc, sp_playlist *pl,
-                           int position, void *userdata)
-{
-    fprintf(stderr, "%s has %d playlists\n", (char *)userdata,
-    sp_playlistcontainer_num_playlists(pc));
-    /*
-    sp_playlist_add_callbacks(pl, &pl_callbacks, NULL);
-
-    if (!strcasecmp(sp_playlist_name(pl), g_listname)) {
-        g_jukeboxlist = pl;
-        try_jukebox_start();
-    }
-    */
-}
-
-static void playlist_removed(sp_playlistcontainer *pc, sp_playlist *pl,
-                             int position, void *userdata)
-{
-    fprintf(stderr, "%s has %d playlists\n", (char *)userdata,
-    sp_playlistcontainer_num_playlists(pc));
-    /*
-    sp_playlist_remove_callbacks(pl, &pl_callbacks, NULL);
-    */
-}
-
-
-static void container_loaded(sp_playlistcontainer *pc, void *userdata)
-{
-    fprintf(stderr, "%s has %d playlists\n", (char *)userdata,
-    sp_playlistcontainer_num_playlists(pc));
-}
 
 /*********************************************************
  *
@@ -423,10 +371,13 @@ static void logged_in(sp_session *sp, sp_error error)
     if (SP_ERROR_OK != error) {
         fprintf(stderr, "Login failed: %s\n",
                 sp_error_message(error));
-        exit(2);
+        exit(EXIT_FAILURE);
     }
 
     fprintf(stderr, "Logged in\n");
+
+    sp_playlistcontainer *pc = sp_session_playlistcontainer(sp);
+    pl = playlist_init(pc);
 
     notify_main_thread(sp);
 }
@@ -438,8 +389,6 @@ static void logged_in(sp_session *sp, sp_error error)
  */
 static void metadata_updated(sp_session *sp)
 {
-    puts("Metadata updated.");
-
     notify_main_thread(sp);
 }
 
@@ -576,16 +525,21 @@ void play_next()
     notify_main_thread(sess);
 }
 
-/*
- * Get a list of playlists for a user
- */
-void get_user(const char *username)
+void playlists(void *cb)
 {
-    sp_playlistcontainer *playlists =
-        sp_session_publishedcontainer_for_user_create (sess, username);
+    if (pl) {
+        json_t *obj = json_object();
+        json_object_set_new(obj, "type", json_string_nocheck("playlists"));
+        json_object_set_new(obj, "playlists", playlist_json(pl));
 
-    sp_playlistcontainer_add_callbacks(playlists, &pc_callbacks, (void *)username);
+        send_callback(cb, obj);
+
+        json_decref(obj);
+    } else {
+        fprintf(stderr, "Playlist not initialized\n");
+    }
 }
+
 
 /*********************************************************
  *

@@ -69,6 +69,19 @@ char *handle_command(char *json, struct bufferevent *bev)
                 // Start the search command
                 search(json_string_value(query), cb);
             }
+        } else if (strcmp(cmd, "playlists") == 0) {
+            fprintf(stderr, "Get playlists\n");
+            // Create a callback struct
+            callback_t *cb = malloc(sizeof(callback_t));
+            cb->bev = bev;
+            json_t *user_data = json_object_get(command, "user_data");
+            if (user_data) {
+                json_incref(user_data);
+                cb->user_data = user_data;
+            }
+
+            // Start the search command
+            playlists(cb);
         } else {
             fprintf(stderr, "Unknown\n");
         }

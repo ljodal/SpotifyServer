@@ -20,11 +20,13 @@ void spotify_loop();
 int queue_link(char *);
 void play_next();
 int search(const char *query, void *searcher);
-void get_user(const char *username);
 
 // Manipulate the queue
 void queue_broadcast();
 void queue_move(uint32_t from, uint32_t to);
 void queue_delete(uint32_t i);
+
+// Get playlists
+void playlists(void *cb);
 
 #endif
