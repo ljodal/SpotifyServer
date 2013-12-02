@@ -1,11 +1,17 @@
 #include "commands.h"
 
-#include <jansson.h>
 #include <string.h>
 
 #include "spotify.h"
+#include "server.h"
 
 // TODO Don't use strtok
+
+struct callback
+{
+    struct bufferevent *bev;
+    json_t *user_data;
+};
 
 char *handle_command(char *json, struct bufferevent *bev)
 {
@@ -49,8 +55,19 @@ char *handle_command(char *json, struct bufferevent *bev)
         } else if (strcmp(cmd, "search") == 0) {
             json_t *query = json_object_get(command, "query");
 
+
             if (query && json_typeof(query) == JSON_STRING) {
-                search(json_string_value(query), bev);
+                // Create a callback struct
+                callback_t *cb = malloc(sizeof(callback_t));
+                cb->bev = bev;
+                json_t *user_data = json_object_get(command, "user_data");
+                if (user_data) {
+                    json_incref(user_data);
+                    cb->user_data = user_data;
+                }
+
+                // Start the search command
+                search(json_string_value(query), cb);
             }
         } else {
             fprintf(stderr, "Unknown\n");
@@ -70,4 +87,13 @@ char *handle_command(char *json, struct bufferevent *bev)
     } else {
         return NULL;
     }
+}
+
+void send_callback(callback_t *cb, json_t *data)
+{
+    json_object_set_new(data, "user_data", cb->user_data);
+
+    char *msg = json_dumps(data, JSON_COMPACT);
+    send_msg(msg, strlen(msg), cb->bev);
+    free(msg);
 }

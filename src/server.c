@@ -198,7 +198,7 @@ void broadcast(char *data, size_t len) {
     }
 }
 
-void send_msg(uint8_t *data, size_t len, struct bufferevent *bev)
+void send_msg(char *data, size_t len, struct bufferevent *bev)
 {
     fprintf(stderr, "Send data\n");
     bufferevent_write(bev, data, len);

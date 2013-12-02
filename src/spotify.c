@@ -12,6 +12,7 @@
 #include "player.h"
 #include "play_queue.h"
 #include "server.h"
+#include "commands.h"
 #include "key.h"
 
 #define QUEUE_SIZE 2
@@ -449,7 +450,7 @@ static void metadata_updated(sp_session *sp)
 static void search_complete(sp_search *search, void *userdata)
 {
     json_t *json = json_object();
-    json_object_set_new(json, "type", json_string("searchResult"));
+    json_object_set_new(json, "type", json_string("search"));
     json_object_set_new(json, "success", json_true());
 
 
@@ -486,6 +487,7 @@ static void search_complete(sp_search *search, void *userdata)
         json_t *track_obj = json_object();
         json_object_set_new(track_obj, "name", json_string(sp_track_name(track)));
         json_object_set_new(track_obj, "artist", json_string(sp_artist_name(sp_track_artist(track, 0))));
+        json_object_set_new(track_obj, "album", json_string(sp_album_name(sp_track_album(track))));
         json_object_set_new(track_obj, "duration", json_integer(sp_track_duration(track)));
 
         // Get the uri of the album
@@ -524,14 +526,13 @@ static void search_complete(sp_search *search, void *userdata)
     json_object_set(json, "artists", artists);
     json_decref(artists);
 
-    char *data = json_dumps(json, JSON_COMPACT);
-
     if (userdata != NULL) {
-        send_msg((uint8_t *)data, strlen(data), (struct bufferevent *)userdata);
+        send_callback((callback_t *)userdata, json);
     } else {
+        char *data = json_dumps(json, JSON_COMPACT);
         broadcast(data, strlen(data));
+        free(data);
     }
-    free(data);
     json_decref(json);
 
     // Do something
