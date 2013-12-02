@@ -108,6 +108,13 @@ json_t *parser_playlist(sp_playlist *pl)
     json_object_set_new(obj, "loaded", sp_playlist_is_loaded(pl) ? json_true() : json_false());
     json_object_set_new(obj, "name", json_string(sp_playlist_name(pl)));
 
+    // Get the link
+    sp_link *link = sp_link_create_from_playlist(pl);
+    char buffer[200];
+    buffer[199] = '\0';
+    sp_link_as_string(link, buffer, 199);
+    json_object_set_new(obj, "uri", json_string(buffer));
+
     return obj;
 }
 
