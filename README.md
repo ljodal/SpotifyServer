@@ -12,7 +12,6 @@ This is a simple Spotify player. It is controlled with JSON commands via a TCP s
 }
 ```
 #### Delete the track at index `index` from the queue
-**_not implemented_**
 ```json
 {
     "command": "queue_delete",
@@ -20,7 +19,6 @@ This is a simple Spotify player. It is controlled with JSON commands via a TCP s
 }
 ```
 #### Move a track in the queue from index `from` to index `to`
-**_not implemented_**
 ```json
 {
     "command": "queue_move",
@@ -29,7 +27,6 @@ This is a simple Spotify player. It is controlled with JSON commands via a TCP s
 }
 ```
 #### Get the current queue
-**_not implemented_**
 ```json
 {
     "command": "queue"
@@ -48,7 +45,8 @@ This is a simple Spotify player. It is controlled with JSON commands via a TCP s
 {
     "command": "search",
     "type": "<all|artist|album|track>",
-    "query": "<query>"
+    "query": "<query>",
+    "user_data": "<optinal data that will be returned in the response>"
 }
 ```
 * `metadata <spotify uri>` Get metadata for the given URI. **_not implemented_**
