@@ -9,33 +9,30 @@
 
 struct callback
 {
-    struct bufferevent *bev;
+    client_t *c;
     json_t *user_data;
 };
 
-char *handle_command(char *json, struct bufferevent *bev)
+void handle_command(char *json, client_t *client)
 {
     json_error_t error;
-
-    // Reponse object
-    json_t *response = NULL;
 
     // Parse the JSON command
     json_t *command = json_loads(json, 0, &error);
 
     if (command) {
         json_t *c = json_object_get(command, "command");
-        if (!c) return NULL;
+        if (!c) return;
 
         const char *cmd = json_string_value(c);
 
         if (!cmd) {
-            return NULL;
+            return;
         } else if (strcmp(cmd, "queue_add") == 0) {
             json_t *t = json_object_get(command, "type");
 
             if (json_typeof(t) != JSON_STRING) {
-                return NULL;
+                return;
             } else if (strcmp(json_string_value(t), "uri") == 0) {
 
                 json_t *uri = json_object_get(command,"uri");
@@ -59,7 +56,7 @@ char *handle_command(char *json, struct bufferevent *bev)
             if (query && json_typeof(query) == JSON_STRING) {
                 // Create a callback struct
                 callback_t *cb = malloc(sizeof(callback_t));
-                cb->bev = bev;
+                cb->c = client;
                 json_t *user_data = json_object_get(command, "user_data");
                 if (user_data) {
                     json_incref(user_data);
@@ -73,7 +70,7 @@ char *handle_command(char *json, struct bufferevent *bev)
             fprintf(stderr, "Get playlists\n");
             // Create a callback struct
             callback_t *cb = malloc(sizeof(callback_t));
-            cb->bev = bev;
+            cb->c = client;
             json_t *user_data = json_object_get(command, "user_data");
             if (user_data) {
                 json_incref(user_data);
@@ -82,23 +79,38 @@ char *handle_command(char *json, struct bufferevent *bev)
 
             // Start the search command
             playlists(cb);
+        } else if (strcmp(cmd, "playlist") == 0) {
+            json_t *t = json_object_get(command, "type");
+
+            if (json_typeof(t) != JSON_STRING) {
+                return;
+            } else if (strcmp(json_string_value(t), "on") == 0) {
+                // Monitor a playlist
+                json_t *uri = json_object_get(command,"uri");
+
+                // Queue the uri
+                playlist_start((char *)json_string_value(uri), client);
+            } else if (strcmp(json_string_value(t), "off") == 0) {
+                // Monitor a playlist
+                json_t *uri = json_object_get(command,"uri");
+
+                // Queue the uri
+                playlist_stop((char *)json_string_value(uri), client);
+            }
         } else {
             fprintf(stderr, "Unknown\n");
         }
     } else {
-        response = json_object();
+        json_t *response = json_object();
 
         json_object_set_new(response, "success", json_false());
         json_object_set_new(response, "type", json_string("invalid_json"));
         json_object_set_new(response, "message", json_string("Invalid JSON command"));
-    }
 
-    if (response) {
-        char *retval = json_dumps(response, JSON_COMPACT);
+        char *msg = json_dumps(response, JSON_COMPACT);
         json_decref(response);
-        return retval;
-    } else {
-        return NULL;
+        client_send(client, msg, strlen(msg));
+        free(msg);
     }
 }
 
@@ -107,6 +119,6 @@ void send_callback(callback_t *cb, json_t *data)
     json_object_set_new(data, "user_data", cb->user_data);
 
     char *msg = json_dumps(data, JSON_COMPACT);
-    send_msg(msg, strlen(msg), cb->bev);
+    client_send(cb->c, msg, strlen(msg));
     free(msg);
 }

@@ -540,6 +540,21 @@ void playlists(void *cb)
     }
 }
 
+void playlist_start(char *uri, client_t *c)
+{
+    sp_link *link = sp_link_create_from_string(uri);
+    sp_playlist *playlist = sp_playlist_create(sess, link);
+
+    client_playlist_on(c, playlist);
+}
+
+void playlist_stop(char *uri, client_t *c)
+{
+    sp_link *link = sp_link_create_from_string(uri);
+    sp_playlist *playlist = sp_playlist_create(sess, link);
+
+    client_playlist_off(c, playlist);
+}
 
 /*********************************************************
  *

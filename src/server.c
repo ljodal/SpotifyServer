@@ -19,6 +19,7 @@
 #include "server.h"
 
 #include "commands.h"
+#include "client.h"
 
 // Global variables for network
 
@@ -27,21 +28,21 @@ static void accept_error(struct evconnlistener *listener, void *ctx);
 
 // Events
 static void handle_read(struct bufferevent *bev, void *ctx);
-static void handle_event(struct bufferevent *bev, short events, void *ctx);    
+static void handle_event(struct bufferevent *bev, short events, void *ctx);
 
 struct list
 {
-    struct bufferevent *bev;
+    client_t *c;
     struct list *next;
     struct list *prev;
 };
 
 struct list *clients;
 
-void add_client(struct bufferevent *bev)
+void add_client(client_t *c)
 {
     struct list *element = malloc(sizeof(struct list));
-    element->bev = bev;
+    element->c = c;
     element->next = clients;
     if (clients != NULL)
         clients->prev = element;
@@ -49,13 +50,13 @@ void add_client(struct bufferevent *bev)
     clients = element;
 }
 
-int remove_client(struct bufferevent *bev)
+int remove_client(client_t *c)
 {
     struct list *tmp;
 
     for(tmp = clients; tmp != NULL; tmp = tmp->next)
     {
-        if (bev == tmp->bev)
+        if (c == tmp->c)
         {
             if(tmp->prev != NULL) {
                 tmp->prev->next = tmp->next;
@@ -135,11 +136,15 @@ static void accept_connection(struct evconnlistener *listener,
     if (!bev)
         fprintf(stderr, "Unable to create bufferevent\n");
 
-    bufferevent_setcb(bev, handle_read, NULL, handle_event, NULL);
+    // Create a new client
+    client_t *c = init_client(bev);
 
+    // Set up the buffer
+    bufferevent_setcb(bev, handle_read, NULL, handle_event, c);
     bufferevent_enable(bev, EV_READ | EV_WRITE);
 
-    add_client(bev);
+    // Store the client
+    add_client(c);
 }
 
 static void accept_error(struct evconnlistener *listener, void *ctx)
@@ -154,32 +159,32 @@ static void accept_error(struct evconnlistener *listener, void *ctx)
 
 static void handle_read(struct bufferevent *bev, void *ctx)
 {
-    /* This callback is invoked when there is data to read on bev. */
+    // Get the buffer
     struct evbuffer *buf = bufferevent_get_input(bev);
 
+    // Get the client
+    client_t *c = ctx;
+
+    // Get the message
     char *request_line;
     size_t len;
-
     request_line = evbuffer_readln(buf, &len, EVBUFFER_EOL_CRLF_STRICT);
+
+    // If we got a messsage, handle it
     if (request_line) {
-        char *response = handle_command(request_line, bev);
+        handle_command(request_line, c);
         free(request_line);
-        if (response) {
-            struct evbuffer *output = bufferevent_get_output(bev);
-            evbuffer_add(output, response, strlen(response));
-            evbuffer_add(output, "\r\n", 2);
-            free(response);
-        }
     }
 }
 
 static void handle_event(struct bufferevent *bev, short events, void *ctx)
 {
+    client_t *c = ctx;
     if (events & BEV_EVENT_ERROR)
         perror("Error from bufferevent");
     if (events & (BEV_EVENT_EOF | BEV_EVENT_ERROR)) {
         fprintf(stderr, "Disconnected\n");
-        if (remove_client(bev) != 0)
+        if (remove_client(c) != 0)
         {
             fprintf(stderr, "Unable to remove client.\n");
         } else {
@@ -192,15 +197,6 @@ static void handle_event(struct bufferevent *bev, short events, void *ctx)
 void broadcast(char *data, size_t len) {
     struct list *tmp;
     for(tmp = clients; tmp; tmp = tmp->next) {
-        struct evbuffer *output = bufferevent_get_output(tmp->bev);
-        evbuffer_add(output, data, len);
-        evbuffer_add(output, "\r\n", 2);
+        client_send(tmp->c, data, len);
     }
-}
-
-void send_msg(char *data, size_t len, struct bufferevent *bev)
-{
-    fprintf(stderr, "Send data\n");
-    bufferevent_write(bev, data, len);
-    bufferevent_write(bev, (uint8_t *)"\r\n", 2);
 }

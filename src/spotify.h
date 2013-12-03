@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "client.h"
+
 typedef enum
 {
     SPOTIFY_TRACK_QUEUED,
@@ -28,5 +30,9 @@ void queue_delete(uint32_t i);
 
 // Get playlists
 void playlists(void *cb);
+
+// Monitor playlists
+void playlist_start(char *uri, client_t *c);
+void playlist_stop(char *uri, client_t *c);
 
 #endif
