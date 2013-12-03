@@ -1,5 +1,5 @@
-#ifndef play_queue_h
-#define play_queue_h
+#ifndef playqueue_h
+#define playqueue_h
 
 #include <libspotify/api.h>
 #include <jansson.h>

@@ -10,7 +10,7 @@
 
 #include "spotify.h"
 #include "player.h"
-#include "play_queue.h"
+#include "playqueue.h"
 #include "server.h"
 #include "commands.h"
 #include "key.h"
