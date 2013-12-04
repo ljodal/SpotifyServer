@@ -39,6 +39,24 @@ This is a simple Spotify player. It is controlled with JSON commands via a TCP s
 * `play` **_not implemented_**
 * `stop` **_not implemented_**
 
+### Playlists
+#### Get the current users playlists
+```json
+{
+    "command": "playlists",
+    "user_data": "<optional data that will be returned in the response>"
+}
+```
+
+#### Start or stop monitoring a playlist for changes
+```json
+{
+    "command": "playlist",
+    "type": "<on|off>",
+    "uri": "<spotify playlist uri>"
+}
+```
+
 ### Metadata
 #### Search for `query`
 ```json
@@ -46,7 +64,7 @@ This is a simple Spotify player. It is controlled with JSON commands via a TCP s
     "command": "search",
     "type": "<all|artist|album|track>",
     "query": "<query>",
-    "user_data": "<optinal data that will be returned in the response>"
+    "user_data": "<optional data that will be returned in the response>"
 }
 ```
 * `metadata <spotify uri>` Get metadata for the given URI. **_not implemented_**
