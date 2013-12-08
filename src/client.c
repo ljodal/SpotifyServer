@@ -66,8 +66,11 @@ void client_playlist_on(client_t *c, sp_playlist *pl)
         // Get the track
         sp_track *t = sp_playlist_track(pl, i);
 
-        // Track name
+        // Track information
         json_object_set_new(track, "name", json_string(sp_track_name(t)));
+        json_object_set_new(track, "artist", json_string(sp_artist_name(sp_track_artist(t, 0))));
+        json_object_set_new(track, "album", json_string(sp_album_name(sp_track_album(t))));
+        json_object_set_new(track, "duration", json_integer(sp_track_duration(t)));
 
         // Track uri
         sp_link *l = sp_link_create_from_track(t, 0);
