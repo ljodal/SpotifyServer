@@ -15,17 +15,17 @@
 void exit_program();
 
 const char *username = NULL;
-const char *password = NULL;
+char *password = NULL;
 
 void print_usage()
 {
-    fprintf(stderr, "Usage: -u <username> -p <password> [-P <port>]\n");
+    fprintf(stderr, "Usage: -u <username> [-p <port>]\n");
 }
 
 int main(int argc, char *argv[])
 {
     int port = 0, opt;
-    while ((opt = getopt(argc, argv, "hu:p:P:")) != EOF) {
+    while ((opt = getopt(argc, argv, "hu:p:")) != EOF) {
         switch (opt) {
             case 'h':
                 print_usage();
@@ -33,10 +33,6 @@ int main(int argc, char *argv[])
 
             case 'u':
                 username = optarg;
-                break;
-
-            case 'p':
-                password = optarg;
                 break;
 
             case 'P':
@@ -48,6 +44,9 @@ int main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
         }
     }
+
+    // Get the password
+    password = getpass("Password: ");
 
     if (!username || !password)
     {
@@ -73,6 +72,9 @@ int main(int argc, char *argv[])
     init_server(port);
 
     init_spotify(username, password);
+
+    // Free password
+    free(password);
 
     err = pthread_create(&player_thread, NULL, play_loop, NULL);
     if (err != 0) {
