@@ -168,12 +168,18 @@ static void handle_read(struct bufferevent *bev, void *ctx)
     // Get the message
     char *request_line;
     size_t len;
-    request_line = evbuffer_readln(buf, &len, EVBUFFER_EOL_CRLF_STRICT);
 
-    // If we got a messsage, handle it
-    if (request_line) {
-        handle_command(request_line, c);
-        free(request_line);
+    // Read all lines if more than 1 have arrived
+    for (;;) {
+        request_line = evbuffer_readln(buf, &len, EVBUFFER_EOL_CRLF_STRICT);
+
+        // If we got a messsage, handle it
+        if (request_line) {
+            handle_command(request_line, c);
+            free(request_line);
+        } else {
+            return;
+        }
     }
 }
 
